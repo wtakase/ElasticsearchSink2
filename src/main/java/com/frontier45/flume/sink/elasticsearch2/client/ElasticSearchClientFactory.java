@@ -52,14 +52,14 @@ public class ElasticSearchClientFactory {
     public ElasticSearchClient getClient(String clientType, String[] hostNames,
                                          String clusterName, ElasticSearchEventSerializer serializer,
                                          ElasticSearchIndexRequestBuilderFactory indexBuilder,
-                                         boolean sslCertVerify, String truststore, String truststorePassword,
+                                         String truststore, String truststorePassword,
                                          String keystore, String keystorePassword, String keystoreAlias) throws NoSuchClientTypeException {
         if (clientType.equalsIgnoreCase(RestClient)) {
             return getClient(clientType, hostNames, clusterName, serializer, indexBuilder);
         } else if (clientType.equalsIgnoreCase(TransportClient) && serializer != null) {
-            return new ElasticSearchTransportClient(hostNames, clusterName, serializer, sslCertVerify, truststore, truststorePassword, keystore, keystorePassword, keystoreAlias);
+            return new ElasticSearchTransportClient(hostNames, clusterName, serializer, truststore, truststorePassword, keystore, keystorePassword, keystoreAlias);
         } else if (clientType.equalsIgnoreCase(TransportClient) && indexBuilder != null) {
-            return new ElasticSearchTransportClient(hostNames, clusterName, indexBuilder, sslCertVerify, truststore, truststorePassword, keystore, keystorePassword, keystoreAlias);
+            return new ElasticSearchTransportClient(hostNames, clusterName, indexBuilder, truststore, truststorePassword, keystore, keystorePassword, keystoreAlias);
         }
         throw new NoSuchClientTypeException();
     }

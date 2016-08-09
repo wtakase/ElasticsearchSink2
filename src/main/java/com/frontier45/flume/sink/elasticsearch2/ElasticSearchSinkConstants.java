@@ -97,7 +97,6 @@ public class ElasticSearchSinkConstants {
    * For SearchGuard SSL
    */
   public static final String SSL = "ssl";
-  public static final String SSL_CERT_VERIFY = "sslCertVerify";
   public static final String TRUSTSTORE = "truststore";
   public static final String TRUSTSTORE_PASSWORD = "truststorePassword";
   public static final String KEYSTORE = "keystore";
@@ -118,12 +117,11 @@ public class ElasticSearchSinkConstants {
   public static final String DEFAULT_SERIALIZER_CLASS = "com.frontier45.flume.sink.elasticsearch2.ElasticSearchLogStashEventSerializer";
   public static final String DEFAULT_INDEX_NAME_BUILDER_CLASS = "com.frontier45.flume.sink.elasticsearch2.TimeBasedIndexNameBuilder";
   public static final boolean DEFAULT_SSL = false;
-  public static final boolean DEFAULT_SSL_CERT_VERIFY = true;
   public static final String DEFAULT_TRUSTSTORE = "/path/to/truststore.jks";
   public static final String DEFAULT_TRUSTSTORE_PASSWORD = "changeit";
   public static final String DEFAULT_KEYSTORE = "/path/to/keystore.jks";
   public static final String DEFAULT_KEYSTORE_PASSWORD = "changeit";
-  public static final String DEFAULT_KEYSTORE_ALIAS = "flume";
+  public static final String DEFAULT_KEYSTORE_ALIAS = "";
 
   private ElasticSearchSinkConstants() {}
 }

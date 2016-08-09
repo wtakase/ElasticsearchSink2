@@ -82,7 +82,6 @@ public class ElasticSearchSink extends AbstractSink implements Configurable {
   private String indexType = ElasticSearchSinkConstants.DEFAULT_INDEX_TYPE;
   private String clientType = ElasticSearchSinkConstants.DEFAULT_CLIENT_TYPE;
   private boolean ssl = ElasticSearchSinkConstants.DEFAULT_SSL;
-  private boolean sslCertVerify = ElasticSearchSinkConstants.DEFAULT_SSL_CERT_VERIFY;
   private String truststore = ElasticSearchSinkConstants.DEFAULT_TRUSTSTORE;
   private String truststorePassword = ElasticSearchSinkConstants.DEFAULT_TRUSTSTORE_PASSWORD;
   private String keystore = ElasticSearchSinkConstants.DEFAULT_KEYSTORE;
@@ -261,7 +260,6 @@ public class ElasticSearchSink extends AbstractSink implements Configurable {
     }
 
     if ((ssl = context.getBoolean(ElasticSearchSinkConstants.SSL, false))) {
-      sslCertVerify = context.getBoolean(ElasticSearchSinkConstants.SSL_CERT_VERIFY, false);
       if (StringUtils.isNotBlank(context.getString(ElasticSearchSinkConstants.TRUSTSTORE))) {
         truststore = context.getString(ElasticSearchSinkConstants.TRUSTSTORE);
       }
@@ -366,7 +364,7 @@ public class ElasticSearchSink extends AbstractSink implements Configurable {
         if (ssl) {
           client = clientFactory.getClient(clientType, serverAddresses,
               clusterName, eventSerializer, indexRequestFactory,
-              sslCertVerify, truststore, truststorePassword,
+              truststore, truststorePassword,
               keystore, keystorePassword, keystoreAlias);
         } else {
           client = clientFactory.getClient(clientType, serverAddresses,
