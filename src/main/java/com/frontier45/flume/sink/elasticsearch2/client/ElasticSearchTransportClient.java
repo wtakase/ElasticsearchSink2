@@ -38,6 +38,9 @@ import org.elasticsearch.node.NodeBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.floragunn.searchguard.ssl.SearchGuardSSLPlugin;
+import com.floragunn.searchguard.ssl.util.SSLConfigConstants;
+
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.Arrays;
@@ -73,6 +76,26 @@ public class ElasticSearchTransportClient implements ElasticSearchClient {
         configureHostnames(hostNames);
         this.indexRequestBuilderFactory = indexBuilder;
         openClient(clusterName);
+    }
+
+    public ElasticSearchTransportClient(String[] hostNames, String clusterName,
+                                        ElasticSearchEventSerializer serializer,
+                                        boolean sslCertVerify, String truststore,
+                                        String truststorePassword, String keystore,
+                                        String keystorePassword, String keystoreAlias) {
+        configureHostnames(hostNames);
+        this.serializer = serializer;
+        openClient(clusterName, sslCertVerify, truststore, truststorePassword, keystore, keystorePassword, keystoreAlias);
+    }
+
+    public ElasticSearchTransportClient(String[] hostNames, String clusterName,
+                                        ElasticSearchIndexRequestBuilderFactory indexBuilder,
+                                        boolean sslCertVerify, String truststore,
+                                        String truststorePassword, String keystore,
+                                        String keystorePassword, String keystoreAlias) {
+        configureHostnames(hostNames);
+        this.indexRequestBuilderFactory = indexBuilder;
+        openClient(clusterName, sslCertVerify, truststore, truststorePassword, keystore, keystorePassword, keystoreAlias);
     }
 
     /**
@@ -196,6 +219,32 @@ public class ElasticSearchTransportClient implements ElasticSearchClient {
                 .put("cluster.name", clusterName).build();
 
         TransportClient transportClient = TransportClient.builder().settings(settings).build();
+        for (InetSocketTransportAddress host : serverAddresses) {
+            transportClient.addTransportAddress(host);
+        }
+        if (client != null) {
+            client.close();
+        }
+        client = transportClient;
+    }
+
+    private void openClient(String clusterName, boolean sslCertVerify, String truststore,
+                            String truststorePassword, String keystore, String keystorePassword, String keystoreAlias) {
+        final Settings.Builder settingsBuilder = Settings.settingsBuilder()
+                .put("cluster.name", clusterName)
+                .put(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_ENABLED, true)
+                .put(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_KEYSTORE_FILEPATH, keystore)
+                .put(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_KEYSTORE_PASSWORD, keystorePassword)
+                .put(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_KEYSTORE_ALIAS, keystoreAlias)
+                .put(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_ENFORCE_HOSTNAME_VERIFICATION, false)
+                .put(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_ENFORCE_HOSTNAME_VERIFICATION_RESOLVE_HOST_NAME, false);
+        if (sslCertVerify) {
+            settingsBuilder.put(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_TRUSTSTORE_FILEPATH, truststore)
+                    .put(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_TRUSTSTORE_PASSWORD, truststorePassword);
+        }
+        Settings settings = settingsBuilder.build();
+
+        TransportClient transportClient = TransportClient.builder().settings(settings).addPlugin(SearchGuardSSLPlugin.class).build();
         for (InetSocketTransportAddress host : serverAddresses) {
             transportClient.addTransportAddress(host);
         }

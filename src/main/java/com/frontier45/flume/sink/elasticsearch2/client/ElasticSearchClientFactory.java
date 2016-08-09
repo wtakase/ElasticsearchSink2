@@ -49,6 +49,21 @@ public class ElasticSearchClientFactory {
         throw new NoSuchClientTypeException();
     }
 
+    public ElasticSearchClient getClient(String clientType, String[] hostNames,
+                                         String clusterName, ElasticSearchEventSerializer serializer,
+                                         ElasticSearchIndexRequestBuilderFactory indexBuilder,
+                                         boolean sslCertVerify, String truststore, String truststorePassword,
+                                         String keystore, String keystorePassword, String keystoreAlias) throws NoSuchClientTypeException {
+        if (clientType.equalsIgnoreCase(RestClient)) {
+            return getClient(clientType, hostNames, clusterName, serializer, indexBuilder);
+        } else if (clientType.equalsIgnoreCase(TransportClient) && serializer != null) {
+            return new ElasticSearchTransportClient(hostNames, clusterName, serializer, sslCertVerify, truststore, truststorePassword, keystore, keystorePassword, keystoreAlias);
+        } else if (clientType.equalsIgnoreCase(TransportClient) && indexBuilder != null) {
+            return new ElasticSearchTransportClient(hostNames, clusterName, indexBuilder, sslCertVerify, truststore, truststorePassword, keystore, keystorePassword, keystoreAlias);
+        }
+        throw new NoSuchClientTypeException();
+    }
+
     /**
      * Used for tests only. Creates local elasticsearch instance client.
      *

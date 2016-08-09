@@ -81,6 +81,14 @@ public class ElasticSearchSink extends AbstractSink implements Configurable {
   private String indexName = ElasticSearchSinkConstants.DEFAULT_INDEX_NAME;
   private String indexType = ElasticSearchSinkConstants.DEFAULT_INDEX_TYPE;
   private String clientType = ElasticSearchSinkConstants.DEFAULT_CLIENT_TYPE;
+  private boolean ssl = ElasticSearchSinkConstants.DEFAULT_SSL;
+  private boolean sslCertVerify = ElasticSearchSinkConstants.DEFAULT_SSL_CERT_VERIFY;
+  private String truststore = ElasticSearchSinkConstants.DEFAULT_TRUSTSTORE;
+  private String truststorePassword = ElasticSearchSinkConstants.DEFAULT_TRUSTSTORE_PASSWORD;
+  private String keystore = ElasticSearchSinkConstants.DEFAULT_KEYSTORE;
+  private String keystorePassword = ElasticSearchSinkConstants.DEFAULT_KEYSTORE_PASSWORD;
+  private String keystoreAlias = ElasticSearchSinkConstants.DEFAULT_KEYSTORE_ALIAS;
+
   private final Pattern pattern = Pattern.compile(ElasticSearchSinkConstants.TTL_REGEX,
       Pattern.CASE_INSENSITIVE);
   private Matcher matcher = pattern.matcher("");
@@ -252,6 +260,25 @@ public class ElasticSearchSink extends AbstractSink implements Configurable {
       clientType = context.getString(ElasticSearchSinkConstants.CLIENT_TYPE);
     }
 
+    if ((ssl = context.getBoolean(ElasticSearchSinkConstants.SSL, false))) {
+      sslCertVerify = context.getBoolean(ElasticSearchSinkConstants.SSL_CERT_VERIFY, false);
+      if (StringUtils.isNotBlank(context.getString(ElasticSearchSinkConstants.TRUSTSTORE))) {
+        truststore = context.getString(ElasticSearchSinkConstants.TRUSTSTORE);
+      }
+      if (StringUtils.isNotBlank(context.getString(ElasticSearchSinkConstants.TRUSTSTORE_PASSWORD))) {
+        truststorePassword = context.getString(ElasticSearchSinkConstants.TRUSTSTORE_PASSWORD);
+      }
+      if (StringUtils.isNotBlank(context.getString(ElasticSearchSinkConstants.KEYSTORE))) {
+        keystore = context.getString(ElasticSearchSinkConstants.KEYSTORE);
+      }
+      if (StringUtils.isNotBlank(context.getString(ElasticSearchSinkConstants.KEYSTORE_PASSWORD))) {
+        keystorePassword = context.getString(ElasticSearchSinkConstants.KEYSTORE_PASSWORD);
+      }
+      if (StringUtils.isNotBlank(context.getString(ElasticSearchSinkConstants.KEYSTORE_ALIAS))) {
+        keystoreAlias = context.getString(ElasticSearchSinkConstants.KEYSTORE_ALIAS);
+      }
+    }
+
     elasticSearchClientContext = new Context();
     elasticSearchClientContext.putAll(context.getSubProperties(ElasticSearchSinkConstants.CLIENT_PREFIX));
 
@@ -336,8 +363,15 @@ public class ElasticSearchSink extends AbstractSink implements Configurable {
         client = clientFactory.getLocalClient(
             clientType, eventSerializer, indexRequestFactory);
       } else {
-        client = clientFactory.getClient(clientType, serverAddresses,
-            clusterName, eventSerializer, indexRequestFactory);
+        if (ssl) {
+          client = clientFactory.getClient(clientType, serverAddresses,
+              clusterName, eventSerializer, indexRequestFactory,
+              sslCertVerify, truststore, truststorePassword,
+              keystore, keystorePassword, keystoreAlias);
+        } else {
+          client = clientFactory.getClient(clientType, serverAddresses,
+              clusterName, eventSerializer, indexRequestFactory);
+        }
         client.configure(elasticSearchClientContext);
       }
       sinkCounter.incrementConnectionCreatedCount();
