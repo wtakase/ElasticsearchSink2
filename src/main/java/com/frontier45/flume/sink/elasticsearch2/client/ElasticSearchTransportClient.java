@@ -230,6 +230,8 @@ public class ElasticSearchTransportClient implements ElasticSearchClient {
                             String keystore, String keystorePassword, String keystoreAlias) {
         final Settings.Builder settingsBuilder = Settings.settingsBuilder()
                 .put("cluster.name", clusterName)
+                .put("path.home", ".")
+                .put("path.conf", ".")
                 .put(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_ENABLED, true)
                 .put(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_TRUSTSTORE_FILEPATH, truststore)
                 .put(SSLConfigConstants.SEARCHGUARD_SSL_TRANSPORT_TRUSTSTORE_PASSWORD, truststorePassword)

@@ -36,12 +36,15 @@ Jar will be generated in `build/libs`
 
 # SSL Usage
 
+1. Configure flume.conf
+
 ```
 agent.sinks.exampleSink.ssl = true
-agent.sinks.exampleSink.sslCertVerify = true
 agent.sinks.exampleSink.truststore = /path/to/truststore.jks
 agent.sinks.exampleSink.truststorePassword = changeit
 agent.sinks.exampleSink.keystore = /path/to/keystore.jks
 agent.sinks.exampleSink.keystorePassword = changeit
 agent.sinks.exampleSink.keystoreAlias = some_alias
 ```
+
+2. Add the DN of keystone.jks as a username to roles_mapping.yml in SearchGuard
